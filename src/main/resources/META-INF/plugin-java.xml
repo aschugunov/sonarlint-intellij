@@ -30,4 +30,8 @@
         <AnalysisConfiguration implementation="org.sonarlint.intellij.analysis.JavaAnalysisConfigurator"/>
     </extensions>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="org.sonarlint.intellij.trigger.MakeTrigger"/>
+    </extensions>
+
 </idea-plugin>
