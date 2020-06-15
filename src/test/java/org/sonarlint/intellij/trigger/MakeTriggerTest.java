@@ -28,7 +28,6 @@ import org.sonarlint.intellij.AbstractSonarLintLightTests;
 import org.sonarlint.intellij.AbstractSonarLintMockedTests;
 import org.sonarlint.intellij.ui.SonarLintConsole;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -66,15 +65,6 @@ public class MakeTriggerTest extends AbstractSonarLintLightTests {
   @Test
   public void should_do_nothing_on_generate() {
     trigger.fileGenerated("output", "relative");
-    verifyZeroInteractions(submitter);
-  }
-
-  @Test
-  public void handle_null_project() {
-    // this doesn't comply with the interface but it's null in DummyCompileContext
-    when(context.getProject()).thenReturn(null);
-    trigger.compilationFinished(false, 0, 0, context);
-    trigger.buildFinished(null, UUID.randomUUID(), true);
     verifyZeroInteractions(submitter);
   }
 
