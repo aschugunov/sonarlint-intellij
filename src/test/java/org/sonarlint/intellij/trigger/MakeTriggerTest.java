@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 
 public class MakeTriggerTest extends AbstractSonarLintLightTests {
   private SonarLintSubmitter submitter = mock(SonarLintSubmitter.class);
-  private Project project = mock(Project.class);
   private SonarLintConsole console = mock(SonarLintConsole.class);
   private CompileContext context = mock(CompileContext.class);
 
@@ -45,8 +44,9 @@ public class MakeTriggerTest extends AbstractSonarLintLightTests {
   public void prepare() {
     replaceProjectService(SonarLintSubmitter.class, submitter);
     replaceProjectService(SonarLintConsole.class, console);
-    when(context.getProject()).thenReturn(project);
+    when(context.getProject()).thenReturn(getProject());
     trigger = new MakeTrigger();
+    trigger.runActivity(getProject());
   }
 
   @Test
@@ -57,8 +57,7 @@ public class MakeTriggerTest extends AbstractSonarLintLightTests {
 
   @Test
   public void should_trigger_automake() {
-    when(context.getProject()).thenReturn(mock(Project.class));
-    trigger.buildFinished(project, UUID.randomUUID(), true);
+    trigger.buildFinished(getProject(), UUID.randomUUID(), true);
     verify(submitter).submitOpenFilesAuto(TriggerType.COMPILATION);
   }
 
@@ -80,13 +79,13 @@ public class MakeTriggerTest extends AbstractSonarLintLightTests {
   @Test
   public void should_not_trigger_if_not_automake() {
     when(context.getProject()).thenReturn(mock(Project.class));
-    trigger.buildFinished(project, UUID.randomUUID(), false);
+    trigger.buildFinished(getProject(), UUID.randomUUID(), false);
     verifyZeroInteractions(submitter);
   }
 
   @Test
   public void other_events_should_be_noop() {
-    trigger.buildStarted(project, UUID.randomUUID(), true);
+    trigger.buildStarted(getProject(), UUID.randomUUID(), true);
     verifyZeroInteractions(submitter);
   }
 }

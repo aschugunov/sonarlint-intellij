@@ -67,7 +67,8 @@ public class MakeTrigger implements BuildManagerListener, CompilationStatusListe
    * {@link CompileContext} can have a null Project. See {@link com.intellij.openapi.compiler.DummyCompileContext}.
    */
   @Override public void compilationFinished(boolean aborted, int errors, int warnings, CompileContext compileContext) {
-    if (compileContext.getProject().equals(this.project)) {
+    Project project = compileContext.getProject();
+    if (project != null && compileContext.getProject().equals(this.project)) {
       SonarLintUtils.getService(project, SonarLintConsole.class).debug("compilation finished");
       SonarLintUtils.getService(project, SonarLintSubmitter.class).submitOpenFilesAuto(TriggerType.COMPILATION);
     }

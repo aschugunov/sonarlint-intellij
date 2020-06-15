@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.sonarlint.intellij.analysis.AnalysisCallback;
 import org.sonarlint.intellij.analysis.LocalFileExclusions;
@@ -45,9 +46,15 @@ import org.sonarlint.intellij.util.SonarLintUtils;
 
 public class SonarLintSubmitter {
   private final Project myProject;
+  private final Supplier<LocalFileExclusions> exclusionsProvider;
 
   public SonarLintSubmitter(Project project) {
+    this(project, () -> new LocalFileExclusions(project));
+  }
+
+  SonarLintSubmitter(Project project, Supplier<LocalFileExclusions> exclusionsProvider) {
     this.myProject = project;
+    this.exclusionsProvider = exclusionsProvider;
   }
 
   public void submitOpenFilesAuto(TriggerType trigger) {
@@ -126,7 +133,7 @@ public class SonarLintSubmitter {
 
     for (VirtualFile file : files) {
       Module m = SonarLintAppUtils.findModuleForFile(file, myProject);
-      LocalFileExclusions localFileExclusions = new LocalFileExclusions(myProject);
+      LocalFileExclusions localFileExclusions = exclusionsProvider.get();
       LocalFileExclusions.Result result = localFileExclusions.canAnalyze(file, m);
       if (result.isExcluded()) {
         logExclusion(file, "excluded: " + result.excludeReason());

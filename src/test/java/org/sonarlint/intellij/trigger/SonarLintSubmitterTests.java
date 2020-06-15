@@ -22,8 +22,6 @@ package org.sonarlint.intellij.trigger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
-import java.util.Collections;
-import java.util.function.Predicate;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonarlint.intellij.AbstractSonarLintLightTests;
@@ -36,22 +34,14 @@ import org.sonarlint.intellij.exception.InvalidBindingException;
 import org.sonarlint.intellij.ui.SonarLintConsole;
 import org.sonarlint.intellij.util.SonarLintUtils;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import java.util.Collections;
+import java.util.function.Predicate;
+
+import static java.util.Collections.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class SonarLintSubmitterTests extends AbstractSonarLintLightTests {
-  private SonarLintConsole console = mock(SonarLintConsole.class);
-  private FileEditorManager fileEditorManager = mock(FileEditorManager.class);
   private SonarLintJobManager sonarLintJobManager = mock(SonarLintJobManager.class);
   private LocalFileExclusions exclusions = mock(LocalFileExclusions.class);
   private ProjectBindingManager bindingManager = mock(ProjectBindingManager.class);
@@ -64,15 +54,17 @@ public class SonarLintSubmitterTests extends AbstractSonarLintLightTests {
     when(bindingManager.getFacade()).thenReturn(facade);
     when(facade.getExcluded(any(Module.class), anyCollection(), any(Predicate.class))).thenReturn(Collections.emptySet());
     getGlobalSettings().setAutoTrigger(true);
-    submitter = new SonarLintSubmitter(getProject());
+    submitter = new SonarLintSubmitter(getProject(), () -> exclusions);
+    replaceProjectService(SonarLintJobManager.class, sonarLintJobManager);
+    replaceProjectService(ProjectBindingManager.class, bindingManager);
   }
 
   @Test
   public void should_submit_open_files() {
     VirtualFile f1 = myFixture.copyFileToProject("foo.php", "foo.php");
+    FileEditorManager.getInstance(getProject()).openFile(f1, false);
     when(exclusions.checkExclusions(f1, getModule())).thenReturn(LocalFileExclusions.Result.notExcluded());
     when(exclusions.canAnalyze(f1, getModule())).thenReturn(LocalFileExclusions.Result.notExcluded());
-    when(fileEditorManager.getOpenFiles()).thenReturn(new VirtualFile[] {f1});
 
     submitter.submitOpenFilesAuto(TriggerType.CONFIG_CHANGE);
     verify(sonarLintJobManager).submitBackground(eq(singletonMap(getModule(), singleton(f1))), eq(emptyList()), eq(TriggerType.CONFIG_CHANGE), eq(null));
@@ -90,9 +82,9 @@ public class SonarLintSubmitterTests extends AbstractSonarLintLightTests {
   @Test
   public void should_clear_issues_if_excluded() {
     VirtualFile f1 = myFixture.copyFileToProject("foo.php", "foo.php");
+    FileEditorManager.getInstance(getProject()).openFile(f1, false);
     when(exclusions.checkExclusions(f1, getModule())).thenReturn(LocalFileExclusions.Result.excluded(""));
     when(exclusions.canAnalyze(f1, getModule())).thenReturn(LocalFileExclusions.Result.notExcluded());
-    when(fileEditorManager.getOpenFiles()).thenReturn(new VirtualFile[] {f1});
 
     submitter.submitOpenFilesAuto(TriggerType.CONFIG_CHANGE);
     verify(sonarLintJobManager).submitBackground(eq(emptyMap()), eq(singletonList(f1)), eq(TriggerType.CONFIG_CHANGE), eq(null));
@@ -101,6 +93,7 @@ public class SonarLintSubmitterTests extends AbstractSonarLintLightTests {
   @Test
   public void should_clear_issues_if_excluded_in_server() {
     VirtualFile f1 = myFixture.copyFileToProject("foo.php", "foo.php");
+    FileEditorManager.getInstance(getProject()).openFile(f1, false);
     when(exclusions.checkExclusions(f1, getModule())).thenReturn(LocalFileExclusions.Result.notExcluded());
     when(exclusions.canAnalyze(f1, getModule())).thenReturn(LocalFileExclusions.Result.notExcluded());
     when(facade.getExcluded(any(Module.class), anyCollection(), any(Predicate.class))).thenReturn(singleton(f1));
@@ -120,6 +113,7 @@ public class SonarLintSubmitterTests extends AbstractSonarLintLightTests {
   @Test
   public void should_clear_issues_if_not_analyzable() {
     VirtualFile f1 = myFixture.copyFileToProject("foo.php", "foo.php");
+    FileEditorManager.getInstance(getProject()).openFile(f1, false);
     when(exclusions.canAnalyze(f1, getModule())).thenReturn(LocalFileExclusions.Result.excluded(null));
     submitter.submitFiles(singleton(f1), TriggerType.ACTION, false);
 
@@ -129,7 +123,7 @@ public class SonarLintSubmitterTests extends AbstractSonarLintLightTests {
   @Test
   public void should_clear_issues_if_cant_analyze() {
     VirtualFile f1 = myFixture.copyFileToProject("foo.php", "foo.php");
-    when(fileEditorManager.getOpenFiles()).thenReturn(new VirtualFile[] {f1});
+    FileEditorManager.getInstance(getProject()).openFile(f1, false);
     when(exclusions.checkExclusions(f1, getModule())).thenReturn(LocalFileExclusions.Result.notExcluded());
     when(exclusions.canAnalyze(f1, getModule())).thenReturn(LocalFileExclusions.Result.excluded("Because"));
 

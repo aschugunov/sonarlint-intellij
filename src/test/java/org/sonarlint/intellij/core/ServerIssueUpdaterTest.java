@@ -64,7 +64,10 @@ public class ServerIssueUpdaterTest extends AbstractSonarLintLightTests {
 
   @Before
   public void prepare() throws InvalidBindingException {
-    ProjectBindingManager bindingManager = spy(getProject().getComponent(ProjectBindingManager.class));
+    ProjectBindingManager bindingManager = mock(ProjectBindingManager.class);
+    replaceProjectService(IssueManager.class, issueManager);
+    replaceProjectService(SonarLintConsole.class, mockedConsole);
+    replaceProjectService(ProjectBindingManager.class, bindingManager);
     doReturn(engine).when(bindingManager).getConnectedEngine();
     underTest = new ServerIssueUpdater(getProject());
     getGlobalSettings().setSonarQubeServers(Collections.singletonList(SonarQubeServer.newBuilder().setName(SERVER_ID).setHostUrl("http://dummyserver:9000").build()));

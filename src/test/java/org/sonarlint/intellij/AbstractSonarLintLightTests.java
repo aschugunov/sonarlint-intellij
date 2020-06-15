@@ -19,19 +19,24 @@
  */
 package org.sonarlint.intellij;
 
+import com.intellij.lang.Language;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
 import com.intellij.serviceContainer.ComponentManagerImpl;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixture4TestCase;
-import java.nio.file.Paths;
-import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.sonarlint.intellij.analysis.SonarLintStatus;
 import org.sonarlint.intellij.config.global.SonarLintGlobalSettings;
 import org.sonarlint.intellij.config.module.SonarLintModuleSettings;
 import org.sonarlint.intellij.config.project.SonarLintProjectSettings;
+
+import java.nio.file.Paths;
+import java.util.Collections;
 
 import static org.sonarlint.intellij.util.SonarLintUtils.getService;
 
@@ -75,6 +80,12 @@ public abstract class AbstractSonarLintLightTests extends LightPlatformCodeInsig
 
   public SonarLintGlobalSettings getGlobalSettings() {
     return globalSettings;
+  }
+
+  public VirtualFile createAndOpenTestFile(String fileName, Language language, String text) {
+    PsiFile file = PsiFileFactory.getInstance(getProject()).createFileFromText(fileName, language, text, true, true);
+    FileEditorManager.getInstance(getProject()).openFile(file.getVirtualFile(), false);
+    return file.getVirtualFile();
   }
 
   public SonarLintProjectSettings getProjectSettings() {
