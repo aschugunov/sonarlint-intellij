@@ -24,6 +24,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonarlint.intellij.AbstractSonarLintLightTests;
 import org.sonarlint.intellij.AbstractSonarLintMockedTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SonarLintActionsTest extends AbstractSonarLintMockedTests {
+public class SonarLintActionsTest extends AbstractSonarLintLightTests {
   private ActionManager actionManager = mock(ActionManager.class, RETURNS_DEEP_STUBS);
   private DefaultActionGroup analyzeMenuGroup = new DefaultActionGroup();
   private AnAction sonarlintAnalyzeMenuGroup = mock(AnAction.class);
@@ -39,7 +40,7 @@ public class SonarLintActionsTest extends AbstractSonarLintMockedTests {
 
   @Before
   public void prepare() {
-    super.register(app, ActionManager.class, actionManager);
+    replaceProjectService( ActionManager.class, actionManager);
     instance = new SonarLintActions();
     when(actionManager.getAction("SonarLint.AnalyzeMenu")).thenReturn(sonarlintAnalyzeMenuGroup);
   }

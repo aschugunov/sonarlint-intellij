@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonarlint.intellij.AbstractSonarLintLightTests;
 import org.sonarlint.intellij.issue.LiveIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class LiveIssueCacheTest {
+public class LiveIssueCacheTest extends AbstractSonarLintLightTests {
 
   private IssuePersistence store = mock(IssuePersistence.class);
   private Project project = mock(Project.class);
@@ -52,6 +53,8 @@ public class LiveIssueCacheTest {
 
   @Before
   public void setUp() {
+    replaceProjectService(IssuePersistence.class, store);
+    replaceProjectService(LiveIssueCache.class, cache);
     when(project.getBasePath()).thenReturn("/root");
   }
 

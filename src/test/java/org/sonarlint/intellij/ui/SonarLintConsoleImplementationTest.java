@@ -30,11 +30,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class SonarLintConsoleTest {
+public class SonarLintConsoleImplementationTest {
   private SonarLintProjectSettings settings = new SonarLintProjectSettings();
   private Project project = mock(Project.class);
   private ConsoleView consoleView = mock(ConsoleView.class);
-  private SonarLintConsole console = new SonarLintConsole(project);
+  private SonarLintConsole console = new SonarLintConsoleImpl(project);
 
   @Test
   public void testClear() {

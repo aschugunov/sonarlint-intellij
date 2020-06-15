@@ -30,10 +30,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SonarLintTaskFactoryTest extends AbstractSonarLintLightTests {
-  private SonarLintTaskFactory sonarLintTaskFactory = new SonarLintTaskFactory(getProject());
+
 
   @Test
   public void should_create_tasks() {
+    SonarLintTaskFactory sonarLintTaskFactory = new SonarLintTaskFactory(getProject());
     Project project = mock(Project.class);
     SonarLintJob job = mock(SonarLintJob.class);
     when(job.project()).thenReturn(project);

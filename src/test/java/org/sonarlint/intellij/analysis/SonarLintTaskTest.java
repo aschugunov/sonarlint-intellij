@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonarlint.intellij.AbstractSonarLintLightTests;
 import org.sonarlint.intellij.SonarApplication;
 import org.sonarlint.intellij.AbstractSonarLintMockedTests;
 import org.sonarlint.intellij.core.ServerIssueUpdater;
@@ -50,7 +51,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class SonarLintTaskTest extends AbstractSonarLintMockedTests {
+public class SonarLintTaskTest extends AbstractSonarLintLightTests {
   private SonarLintTask task;
   @Mock
   private IssueProcessor processor;
@@ -74,13 +75,13 @@ public class SonarLintTaskTest extends AbstractSonarLintMockedTests {
     job = createJob();
     when(progress.isCanceled()).thenReturn(false);
     when(analysisResults.failedAnalysisFiles()).thenReturn(Collections.emptyList());
-    when(sonarLintAnalyzer.analyzeModule(eq(module), eq(files), any(IssueListener.class), any(ProgressMonitor.class))).thenReturn(analysisResults);
+    when(sonarLintAnalyzer.analyzeModule(eq(getModule()), eq(files), any(IssueListener.class), any(ProgressMonitor.class))).thenReturn(analysisResults);
 
-    super.register(SonarLintStatus.class, new SonarLintStatus(getProject()));
-    super.register(SonarLintAnalyzer.class, sonarLintAnalyzer);
-    super.register(SonarLintConsole.class, mock(SonarLintConsole.class));
-    super.register(ServerIssueUpdater.class, mock(ServerIssueUpdater.class));
-    super.register(IssueManager.class, mock(IssueManager.class));
+    replaceProjectService(SonarLintStatus.class, new SonarLintStatus(getProject()));
+    replaceProjectService(SonarLintAnalyzer.class, sonarLintAnalyzer);
+    replaceProjectService(SonarLintConsole.class, mock(SonarLintConsole.class));
+    replaceProjectService(ServerIssueUpdater.class, mock(ServerIssueUpdater.class));
+    replaceProjectService(IssueManager.class, mock(IssueManager.class));
 
     task = new SonarLintTask(getProject(), job, false, true);
 
@@ -99,7 +100,7 @@ public class SonarLintTaskTest extends AbstractSonarLintMockedTests {
     task.run(progress);
 
     verify(sonarApplication).registerExternalAnnotator();
-    verify(sonarLintAnalyzer).analyzeModule(eq(module), eq(files), any(IssueListener.class), any(ProgressMonitor.class));
+    verify(sonarLintAnalyzer).analyzeModule(eq(getModule()), eq(files), any(IssueListener.class), any(ProgressMonitor.class));
     verify(processor).process(job, progress, new ArrayList<>(), new ArrayList<>());
     verify(listener).ended(job);
 
@@ -113,7 +114,7 @@ public class SonarLintTaskTest extends AbstractSonarLintMockedTests {
     TaskListener listener = mock(TaskListener.class);
     getProject().getMessageBus().connect(getProject()).subscribe(TaskListener.SONARLINT_TASK_TOPIC, listener);
 
-    doThrow(new IllegalStateException("error")).when(sonarLintAnalyzer).analyzeModule(eq(module), eq(files), any(IssueListener.class), any(ProgressMonitor.class));
+    doThrow(new IllegalStateException("error")).when(sonarLintAnalyzer).analyzeModule(eq(getModule()), eq(files), any(IssueListener.class), any(ProgressMonitor.class));
     task.run(progress);
 
     // never called because of error
@@ -126,6 +127,6 @@ public class SonarLintTaskTest extends AbstractSonarLintMockedTests {
   }
 
   private SonarLintJob createJob() {
-    return new SonarLintJob(module, files, Collections.emptyList(), TriggerType.ACTION);
+    return new SonarLintJob(getModule(), files, Collections.emptyList(), TriggerType.ACTION);
   }
 }

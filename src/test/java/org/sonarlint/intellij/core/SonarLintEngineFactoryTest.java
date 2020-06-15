@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonarlint.intellij.AbstractSonarLintLightTests;
 import org.sonarlint.intellij.SonarApplication;
 import org.sonarlint.intellij.util.GlobalLogOutput;
 import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SonarLintEngineFactoryTest {
+public class SonarLintEngineFactoryTest extends AbstractSonarLintLightTests {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   private SonarLintEngineFactory factory;
@@ -49,6 +50,7 @@ public class SonarLintEngineFactoryTest {
     SonarApplication application = mock(SonarApplication.class);
     when(application.getPluginPath()).thenReturn(temp.getRoot().getAbsoluteFile().toPath().resolve("plugins"));
     log = mock(GlobalLogOutput.class);
+    replaceProjectService(GlobalLogOutput.class, log);
     factory = new SonarLintEngineFactory();
   }
 

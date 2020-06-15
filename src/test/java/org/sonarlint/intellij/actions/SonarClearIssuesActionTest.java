@@ -46,8 +46,6 @@ public class SonarClearIssuesActionTest extends AbstractSonarLintLightTests {
 
   @Before
   public void prepare() {
-    replaceProjectComponent(DaemonCodeAnalyzer.class, codeAnalyzer);
-    replaceProjectComponent(IssueManager.class, issueManager);
     when(event.getProject()).thenReturn(getProject());
     file = myFixture.copyFileToProject("foo.php", "foo.php");
   }

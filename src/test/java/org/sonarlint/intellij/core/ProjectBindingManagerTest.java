@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonarlint.intellij.AbstractSonarLintLightTests;
 import org.sonarlint.intellij.config.global.SonarLintGlobalSettings;
 import org.sonarlint.intellij.config.global.SonarQubeServer;
 import org.sonarlint.intellij.config.project.SonarLintProjectSettings;
@@ -42,7 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ProjectBindingManagerTest {
+public class ProjectBindingManagerTest extends AbstractSonarLintLightTests {
   private ProjectBindingManager projectBindingManager;
   private SonarLintProjectSettings settings = new SonarLintProjectSettings();
 
@@ -58,6 +59,9 @@ public class ProjectBindingManagerTest {
     SonarLintConsole console = mock(SonarLintConsole.class);
     Project project = mock(Project.class);
     SonarLintProjectNotifications notifications = mock(SonarLintProjectNotifications.class);
+    replaceProjectService(SonarLintProjectSettings.class, settings);
+    replaceProjectService(SonarLintConsole.class, console);
+    replaceProjectService(SonarLintProjectNotifications.class, notifications);
 
     when(engineManager.getStandaloneEngine()).thenReturn(standaloneEngine);
     when(engineManager.getConnectedEngine(any(SonarLintProjectNotifications.class), anyString(), anyString())).thenReturn(connectedEngine);

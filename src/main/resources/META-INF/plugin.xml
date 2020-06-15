@@ -140,7 +140,9 @@
         <projectService serviceImplementation="org.sonarlint.intellij.core.ProjectBindingManager"/>
         <projectService serviceImplementation="org.sonarlint.intellij.config.project.SonarLintProjectSettings"/>
         <projectService serviceImplementation="org.sonarlint.intellij.core.SonarLintProjectNotifications"/>
-        <projectService serviceImplementation="org.sonarlint.intellij.ui.SonarLintConsole"/>
+        <projectService serviceInterface="org.sonarlint.intellij.ui.SonarLintConsole"
+                        serviceImplementation="org.sonarlint.intellij.ui.SonarLintConsole"
+                        testServiceImplementation="org.sonarlint.intellij.ui.SonarLintConsoleTestImpl"/>
         <projectService serviceImplementation="org.sonarlint.intellij.analysis.SonarLintJobManager"/>
         <projectService serviceImplementation="org.sonarlint.intellij.core.SonarQubeEventNotifications"/>
         <projectService serviceImplementation="org.sonarlint.intellij.issue.IssueStore"/>

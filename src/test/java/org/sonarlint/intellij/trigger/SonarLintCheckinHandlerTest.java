@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonarlint.intellij.AbstractSonarLintLightTests;
 import org.sonarlint.intellij.AbstractSonarLintMockedTests;
 import org.sonarlint.intellij.analysis.AnalysisCallback;
 import org.sonarlint.intellij.issue.IssueManager;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SonarLintCheckinHandlerTest extends AbstractSonarLintMockedTests {
+public class SonarLintCheckinHandlerTest extends AbstractSonarLintLightTests {
   private SonarLintCheckinHandler handler;
   private CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -52,9 +53,9 @@ public class SonarLintCheckinHandlerTest extends AbstractSonarLintMockedTests {
 
   @Before
   public void prepare() {
-    super.register(project, SonarLintSubmitter.class, submitter);
-    super.register(project, IssueStore.class, issueStore);
-    super.register(project, IssueManager.class, issueManager);
+    replaceProjectService(SonarLintSubmitter.class, submitter);
+    replaceProjectService(IssueStore.class, issueStore);
+    replaceProjectService(IssueManager.class, issueManager);
 
     when(checkinProjectPanel.getVirtualFiles()).thenReturn(Collections.singleton(file));
   }
@@ -67,7 +68,7 @@ public class SonarLintCheckinHandlerTest extends AbstractSonarLintMockedTests {
 
     when(issueManager.getForFile(file)).thenReturn(Collections.singleton(issue));
 
-    handler = new SonarLintCheckinHandler(project, checkinProjectPanel);
+    handler = new SonarLintCheckinHandler(getProject(), checkinProjectPanel);
     CheckinHandler.ReturnResult result = handler.beforeCheckin(null, null);
 
     assertThat(result).isEqualTo(CheckinHandler.ReturnResult.COMMIT);
@@ -82,7 +83,7 @@ public class SonarLintCheckinHandlerTest extends AbstractSonarLintMockedTests {
 
     when(issueManager.getForFile(file)).thenReturn(Collections.singleton(issue));
 
-    handler = new SonarLintCheckinHandler(project, checkinProjectPanel);
+    handler = new SonarLintCheckinHandler(getProject(), checkinProjectPanel);
     CheckinHandler.ReturnResult result = handler.beforeCheckin(null, null);
 
     assertThat(result).isEqualTo(CheckinHandler.ReturnResult.CANCEL);

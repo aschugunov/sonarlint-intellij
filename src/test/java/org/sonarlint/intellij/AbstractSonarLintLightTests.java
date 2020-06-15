@@ -69,10 +69,6 @@ public abstract class AbstractSonarLintLightTests extends LightPlatformCodeInsig
     Disposer.dispose(disposable);
   }
 
-  protected <T> void replaceProjectComponent(Class<T> clazz, T newInstance) {
-    ((ComponentManagerImpl) getProject()).replaceComponentInstance(clazz, newInstance, disposable);
-  }
-
   protected <T> void replaceProjectService(Class<T> clazz, T newInstance) {
     ((ComponentManagerImpl) getProject()).replaceServiceInstance(clazz, newInstance, disposable);
   }
